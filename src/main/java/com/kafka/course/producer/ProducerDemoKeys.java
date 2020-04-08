@@ -1,6 +1,7 @@
 package com.kafka.course.producer;
 
 import java.util.Properties;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
@@ -13,13 +14,12 @@ import org.slf4j.LoggerFactory;
 
 import com.kafka.course.config.ConfigConstants;
 
-public class ProducerDemoWithCallBack {
+public class ProducerDemoKeys {
 
-	public static void main(String[] args) {
-
+	public static void main(String[] args) throws InterruptedException, ExecutionException {
 		final Logger logger = LoggerFactory.getLogger(ProducerDemoWithCallBack.class);
 
-		// create Producer properties 
+		// create Producer properties
 		Properties properties = new Properties();
 		properties.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, ConfigConstants.bootstrapServer);
 		properties.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
@@ -27,27 +27,34 @@ public class ProducerDemoWithCallBack {
 
 		// create Producer
 		KafkaProducer<String, String> producer = new KafkaProducer<String, String>(properties);
+		
+		for(int i = 0 ; i <10 ; i++) {
+			
+			String value = "Hello Kafka "+i;
+			String key = "id_"+i;
+			
+			ProducerRecord<String, String> record = new ProducerRecord<String, String>(ConfigConstants.fisrtTopic, key, value);
+			
+			logger.info("Key: "+key);
 
-		ProducerRecord<String, String> record = new ProducerRecord<String, String>(ConfigConstants.fisrtTopic,
-				"Hello Kafka");
-
-		// send Data --async
-		producer.send(record, new Callback() {
-
-			public void onCompletion(RecordMetadata metadata, Exception exception) {
-				if (exception == null) {
-					logger.info("Received new metadata: \n" 
-							+ "Topic: "     + metadata.topic() + "\n" 
-							+ "Partition: " + metadata.partition() + "\n" 
-							+ "Offsets: "   + metadata.offset() + "\n" 
-							+ "Timestamp: " + metadata.timestamp());
-				}else {
-					logger.error("Error while producing.",exception);
+			// send Data --async
+			producer.send(record, new Callback() {
+				
+				public void onCompletion(RecordMetadata metadata, Exception exception) {
+					if (exception == null) {
+						logger.info("Received new metadata: \n" 
+								+ "Topic: "      + metadata.topic() + "\n" 
+								+ "Partition: " + metadata.partition() + "\n" 
+								+ "Offsets: "   + metadata.offset() + "\n" 
+								+ "Timestamp: " + metadata.timestamp());
+					} else {
+						logger.error("Error while producing.", exception);
+					}
+					
 				}
+			}).get(); //blocking the .send(), making it sync
+		}
 
-			}
-		});
 		producer.close();
 	}
-
 }

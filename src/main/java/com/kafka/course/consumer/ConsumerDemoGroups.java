@@ -14,10 +14,9 @@ import org.slf4j.LoggerFactory;
 
 import com.kafka.course.config.ConfigConstants;
 
-public class ConsumerDemo {
+public class ConsumerDemoGroups {
 
 	public static void main(String[] args) {
-		
 		Logger logger = LoggerFactory.getLogger(ConsumerDemo.class);
 		
 		//create Properties
@@ -25,7 +24,7 @@ public class ConsumerDemo {
 		properties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, ConfigConstants.bootstrapServer);
 		properties.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
 		properties.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-		properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG,ConfigConstants.groupId);
+		properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG,ConfigConstants.fithGroupId);
 		properties.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, ConfigConstants.earliestOffset);
 		
 		//create consumer
